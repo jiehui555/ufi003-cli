@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "ufi003-cli/cmd"
 
 func main() {
-	fmt.Println("Hello World!")
+	cmd.Execute()
 }
