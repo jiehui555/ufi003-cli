@@ -27,12 +27,36 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          output="ufi003-cli-${GOOS}-${GOARCH}"
-          if [ "${GOOS}" = "windows" ]; then output="${output}.exe"; fi
-          go build -trimpath -ldflags="-s -w" -o "${output}" main.go
-      
-      - name: Upload Release Asset
+          binary="ufi003-cli-${GOOS}-${GOARCH}"
+          if [ "${GOOS}" = "windows" ]; then binary="${binary}.exe"; fi
+          go build -trimpath -ldflags="-s -w" -o "${binary}" main.go
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ufi003-cli-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: ufi003-cli-${{ matrix.goos }}-${{ matrix.goarch }}*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          pattern: ufi003-cli-*
+          merge-multiple: true
+          if-no-files-found: error
+
+      - name: List Artifacts
+        run: ls -alh artifacts
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ufi003-cli-*
+          files: artifacts/*
           generate_release_notes: true
