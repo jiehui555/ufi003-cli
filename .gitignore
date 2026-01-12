@@ -2,4 +2,4 @@
 .vscode
 
 .env
-.ufi003-cli.yaml
+dev.config.yaml

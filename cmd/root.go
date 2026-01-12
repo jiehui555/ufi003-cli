@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -33,29 +34,16 @@ func init() {
 }
 
 func initConfig() {
-	// 查找配置文件
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// 当前目录
-		viper.AddConfigPath(".")
-
-		// 用户家目录
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-		viper.AddConfigPath(home)
-
-		viper.SetConfigName(".ufi003-cli.yaml")
-		viper.SetConfigType("yaml")
+	if cfgFile == "" {
+		cobra.CheckErr(errors.New("config file must be specified using --config flag"))
 	}
 
-	// 读取环境变量
-	viper.AutomaticEnv()
+	viper.SetConfigFile(cfgFile)
+	viper.SetConfigType("yaml")
 
-	// 读取配置文件
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-	} else {
+	if err := viper.ReadInConfig(); err != nil {
 		cobra.CheckErr(err)
+	} else {
+		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
 }
