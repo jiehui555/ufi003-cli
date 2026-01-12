@@ -54,11 +54,11 @@ type SignPayload struct {
 
 // runAutoSign 运行自动签到逻辑
 func runAutoSign() {
-	fmt.Println("开始自动签到...")
+	sugar.Info("开始自动签到...")
 
 	token := viper.GetString("topfeel.token")
 	if token == "" {
-		fmt.Println("错误：未配置 Topfeel 访问 Token")
+		sugar.Error("未配置 Topfeel 访问 Token")
 		return
 	}
 
@@ -79,13 +79,13 @@ func runAutoSign() {
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		fmt.Printf("生成请求体失败: %v\n", err)
+		sugar.Error(fmt.Sprintf("生成请求体失败: %v\n", err))
 		return
 	}
 
 	req, err := http.NewRequest("POST", baseURL+signInPath, bytes.NewBuffer(jsonData))
 	if err != nil {
-		fmt.Printf("创建请求失败: %v\n", err)
+		sugar.Error(fmt.Sprintf("创建请求失败: %v\n", err))
 		return
 	}
 
@@ -104,25 +104,25 @@ func runAutoSign() {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("请求失败: %v\n", err)
+		sugar.Error(fmt.Sprintf("请求失败: %v\n", err))
 		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("签到状态码: %d\n", resp.StatusCode)
+	sugar.Infof("签到状态码: %d", resp.StatusCode)
 
 	if resp.StatusCode == http.StatusOK {
-		fmt.Println("签到请求发送成功（状态码 200）")
+		sugar.Info("签到请求发送成功（状态码 200）")
 	} else {
-		fmt.Printf("签到可能失败，建议检查响应状态码\n")
+		sugar.Warn("签到可能失败，建议检查响应状态码")
 	}
 
 	body, _ := io.ReadAll(resp.Body)
-	fmt.Printf("响应内容: %s\n", string(body)) // {"code":200,"msg":"签到成功","time":1768187726,"data":[]}
+	sugar.Infof("响应内容: %s\n", string(body)) // {"code":200,"msg":"签到成功","time":1768187726,"data":[]}
 }
 
 // runAutoComment 运行自动评论逻辑
 func runAutoComment() {
-	fmt.Println("开始自动评论...")
+	sugar.Info("开始自动评论...")
 	// TODO: 评论逻辑
 }
